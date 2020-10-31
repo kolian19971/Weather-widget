@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <title>Weather widget</title>
+
+    <link rel="stylesheet" href="frontend/css/main.css">
+
+</head>
+<body>
+
+<div class="preLoading">
+    <div class="loadingio-spinner-eclipse-ve2tjfro9iq">
+        <div class="ldio-s1vb9506pd">
+            <div></div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container mt-5">
+
+    <div class="row">
+
+        <div class="col-sm-8 offset-sm-2">
+
+            <div class="card">
+                <div class="card-body">
+                    <form id="weatherForm" class="form-inline justify-content-center">
+                        <div class="form-group mx-sm-3 mb-2">
+                            <label for="cityInput" class="mr-3">City</label>
+                            <input required name="cityQuery" type="text" class="form-control" id="cityInput" placeholder="Enter city">
+                            <input name="cityName" type="hidden" id="cityName">
+                            <input name="countryCode" type="hidden" id="countryCode">
+                        </div>
+                        <button type="submit" class="btn btn-success mb-2">Check the weather</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="container mt-5 weatherResult">
+
+    <div class="row">
+
+        <div class="col-sm-8 offset-sm-2">
+
+            <div class="card">
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <div class="col-sm-6">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <h5 class="card-title cityCountryCode">Lviv(UA)</h5>
+                                </li>
+                                <li class="list-group-item">
+                                    <h5 class="card-title">Temperature:</h5>
+                                    <h5 class="card-title temp"><span></span>°C</h5>
+                                </li>
+
+                                <li class="list-group-item">
+                                    <h6 class="card-title weather">Weather: <span></span></h6>
+                                </li>
+
+
+
+                            </ul>
+                        </div>
+
+                        <div class="col-sm-6">
+
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <h6 class="card-title pressure">Pressure: <span></span> hPa</h6>
+                                </li>
+
+                                <li class="list-group-item">
+                                    <h6 class="card-title sunrise">Sunrise: <span></span></h6>
+                                </li>
+
+                                <li class="list-group-item">
+                                    <h6 class="card-title sunset">Sunset: <span></span></h6>
+                                </li>
+
+
+                            </ul>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+
+<!--Google places-->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDb9M_udH1C-ziSuzgFq_jWmBijbL4kJIw&libraries=places&language=en"></script>
+<script src="frontend/js/google.places.api.js"></script>
+
+<!--moment-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js" integrity="sha512-LGXaggshOkD/at6PFNcp2V2unf9LzFq6LE+sChH7ceMTDP0g2kn6Vxwgg7wkPP7AAtX+lmPqPdxB47A0Nz0cMQ==" crossorigin="anonymous"></script>
+
+<script>
+
+    $('#cityInput').keyup(function (){
+
+        $('#cityName').val($(this).val());
+        $('#countryCode').val('');
+    });
+
+
+    function getDate( dateTime, timezone ){
+
+        const date = moment.unix(dateTime).utc().add(timezone, 's');
+
+        return date.format("DD.MM.YYYY HH:MM:SS");
+
+    }
+
+
+
+    function setWeatherInfo( data ){
+
+        var weatherResult = $('.weatherResult');
+
+        weatherResult.find('.cityCountryCode').text(
+            data.name+'('+data.sys.country+')'
+        );
+
+
+        weatherResult.find('.temp span').text(
+            data.main.temp
+        );
+
+        weatherResult.find('.pressure span').text(
+            data.main.pressure
+        );
+
+
+        weatherResult.find('.sunrise span').text(
+            getDate(data.sys.sunrise, data.timezone)
+        );
+
+        weatherResult.find('.sunset span').text(
+            getDate(data.sys.sunset, data.timezone)
+        );
+
+
+
+        if(typeof  data.weather[0] !== 'undefined'){
+            weatherResult.find('.weather span').text(
+                data.weather[0].description
+            );
+        }
+
+
+
+    }
+
+    $(document).on('submit', '#weatherForm', function (e){
+        e.preventDefault();
+
+        $('.preLoading').fadeIn(300);
+
+        $('.weatherResult').fadeOut(300);
+
+        $.ajax({
+            url: '/backend/src/api/weather/Route.php?route=getInfo',
+            type: 'POST',
+            data: { request: $(this).serialize() },
+            success: function (data) {
+
+                $('.preLoading').fadeOut(300);
+
+                var dataJson = JSON.parse(data);
+
+                if(data != 'null' && dataJson.main.temp){
+
+                    setWeatherInfo(dataJson);
+
+                    $('.weatherResult').fadeIn(300);
+
+                }else{
+                    alert('Not found. To make search more precise put the city\'s name, comma, 2-letter country code (ISO3166). You will get all proper cities in chosen country.');
+
+                }
+
+            },
+            error: function (data) {
+                window.location.reload();
+            }
+        });
+
+    });
+
+</script>
+
+
+</body>
+</html>
