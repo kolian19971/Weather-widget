@@ -98,6 +98,11 @@
                                     <h6 class="card-title sunset">Sunset: <span></span></h6>
                                 </li>
 
+                                <li class="list-group-item">
+                                    <h6 class="card-title length_of_day">Length of day: <span></span></h6>
+                                </li>
+
+
 
                             </ul>
 
@@ -134,6 +139,8 @@
 
 <script>
 
+    const DATE_FORMAT = "DD.MM.YYYY HH:MM:SS";
+
     $('#cityInput').keyup(function (){
 
         $('#cityName').val($(this).val());
@@ -145,7 +152,16 @@
 
         const date = moment.unix(dateTime).utc().add(timezone, 's');
 
-        return date.format("DD.MM.YYYY HH:MM:SS");
+        return date.format(DATE_FORMAT);
+
+    }
+
+
+    function getDurationDay( sunset, sunrize ){
+
+        var dif = moment.duration(sunset.diff(sunrize));
+
+        return [dif.hours()+" hours", dif.minutes()+" minutes", dif.seconds()+" seconds"].join(' ');
 
     }
 
@@ -153,7 +169,9 @@
 
     function setWeatherInfo( data ){
 
-        var weatherResult = $('.weatherResult');
+        var weatherResult = $('.weatherResult'),
+            sunset = getDate(data.sys.sunset, data.timezone),
+            sunrise = getDate(data.sys.sunrise, data.timezone);
 
         weatherResult.find('.cityCountryCode').text(
             data.name+'('+data.sys.country+')'
@@ -170,13 +188,16 @@
 
 
         weatherResult.find('.sunrise span').text(
-            getDate(data.sys.sunrise, data.timezone)
+            sunrise
         );
 
         weatherResult.find('.sunset span').text(
-            getDate(data.sys.sunset, data.timezone)
+            sunset
         );
 
+        weatherResult.find('.length_of_day span').text(
+            getDurationDay(moment(sunset, DATE_FORMAT), moment(sunrise, DATE_FORMAT))
+        );
 
 
         if(typeof  data.weather[0] !== 'undefined'){
@@ -184,8 +205,6 @@
                 data.weather[0].description
             );
         }
-
-
 
     }
 
